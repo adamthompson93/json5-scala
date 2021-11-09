@@ -1,0 +1,16 @@
+{
+  alphanumeric_field_needs_quotes: false,
+  _leading_undderscores_ok: true,
+  trailing_underscores_ok_: true,
+  carriage_return_acts_like_comma: true
+  "vanilla JSON keys also supported": true
+  "a list with null element in at index 1": [0, ,2,3,4,5]
+  "a list with null element in at index 0": [ ,1,2,3,4,5]
+  "a list with null final element": [0,1,2,3,4,]
+  "empty list is interpreted as the empty list, not [null]": []
+  // You can also add comments
+  /* Multiline
+     comments
+     /* can be nested */
+  */
+}
