@@ -3,7 +3,9 @@ package parser
 import cats.data.StateT
 import cats.implicits._
 
-class JsonParser {
+import scala.language.postfixOps
+
+object JsonParser {
 
   type Parser[A] = StateT[Option, String, A]
 
@@ -35,4 +37,26 @@ class JsonParser {
 
   val digit: Parser[Char] = sat(_.isDigit)
 
+  //JsonNull
+  val jsonNull: Parser[JsonNull.type] = string("null").map(_ => JsonNull)
+
+  //JsonBool
+  val jsonTrue: Parser[JsonBool] = string("true").map(_ => JsonBool(true))
+  val jsonFalse: Parser[JsonBool] = string("false").map(_ => JsonBool(false))
+  val jsonBool: Parser[JsonBool] = jsonTrue <+> jsonFalse
+
+//  //JsonString
+//  //TODO: Implement some sort of wildcard?
+//  val jsonString: Parser[String] = ???
+//
+//  //JsonNumber
+//  val integer: Parser[JsonInt] = ???
+//  val double: Parser[JsonDouble] = ???
+//  val jsonNumber: Parser[JsonNumber] = ???
+//
+//  //JsonObject
+//  val jsonObject: Parser[JsonObject] = ???
+
+  //JsonArray
+  val emptyList: Parser[JsonArray] = string("[,]").map(_ => JsonArray(List()))
 }
