@@ -29,28 +29,35 @@ class JsonParserSpec extends AnyFunSpec with Matchers {
       }
     }
 
+    //JsonNumber
+    it("will read in an int") {
+      val expected = JsonInt(15)
+      jsonNumber.run("15") match {
+        case Some(value) => value._2 shouldBe expected
+        case None        => fail
+      }
+    }
+    it("will read nothing and not error spectacularly") {
+      jsonNumber.run("") match {
+        case Some(_) => fail
+        case None    => succeed
+      }
+    }
+    it("will read in a leading decimal") {
+      val expected = JsonDouble(0.56789)
+      jsonNumber.run(".56789") shouldBe expected
+    }
+
+    it("will read in a trailing decimal") {
+      pending
+      val expected = JsonDouble(56789)
+      jsonNumber.run("56789.") shouldBe expected
+    }
+
 //    it("will read in a string") {
 //      val expected = JsonString("true")
 //      jsonString.run("\"true\"") shouldBe expected
 //    }
-//
-//    it("will read in an int") {
-//      val expected = JsonInt(15)
-//      jsonNumber.run("15") shouldBe expected
-//    }
-//
-//    it("will read in a leading decimal") {
-//      val expected = JsonDouble(0.56789)
-//      jsonNumber.run(".56789") shouldBe expected
-//    }
-//
-//    it("will read in a trailing decimal") {
-//      val expected = JsonDouble(56789)
-//      jsonNumber.run("56789.") shouldBe expected
-//    }
-//
-//    it("will read in a hexidecimal number") { pending }
-//    it("will read in ") { pending }
 //
 //    it("will do the whole shebang of side reqs") {
 //      val expected = JsonObject(
