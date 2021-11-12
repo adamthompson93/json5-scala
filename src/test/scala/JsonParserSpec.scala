@@ -6,8 +6,8 @@ import parser._
 class JsonParserSpec extends AnyFunSpec with Matchers {
   describe("JsonParser") {
     it("will read in a null") {
-      val expected = JsonNull
-      jsonValue.run("null") match {
+      val expected = JsonObject(Map("nothing" -> JsonNull))
+      jsonValue.run("{nothing: null}") match {
         case Some(value) => value._2 shouldBe expected
         case None        => fail
       }
