@@ -7,7 +7,7 @@ class JsonParserSpec extends AnyFunSpec with Matchers {
   describe("JsonParser") {
     it("will read in a null") {
       val expected = JsonNull
-      jsonNull.run("null") match {
+      jsonValue.run("null") match {
         case Some(value) => value._2 shouldBe expected
         case None        => fail
       }
@@ -16,14 +16,14 @@ class JsonParserSpec extends AnyFunSpec with Matchers {
     //jsonBool
     it("will read in a true") {
       val expected = JsonBool(true)
-      jsonBool.run("true") match {
+      jsonValue.run("true") match {
         case Some(value) => value._2 shouldBe expected
         case None        => fail
       }
     }
     it("will read in a false") {
       val expected = JsonBool(false)
-      jsonBool.run("false") match {
+      jsonValue.run("false") match {
         case Some(value) => value._2 shouldBe expected
         case None        => fail
       }
@@ -32,26 +32,41 @@ class JsonParserSpec extends AnyFunSpec with Matchers {
     //JsonNumber
     it("will read in an int") {
       val expected = JsonInt(15)
-      jsonNumber.run("15") match {
+      jsonValue.run("15") match {
         case Some(value) => value._2 shouldBe expected
         case None        => fail
       }
     }
     it("will read nothing and not error spectacularly") {
-      jsonNumber.run("") match {
+      jsonValue.run("") match {
         case Some(_) => fail
         case None    => succeed
       }
     }
+    it("will get the numbers") {
+      val expected = JsonInt(12345)
+      jsonValue.run("12345test") match {
+        case Some(value) => value._2 shouldBe expected
+        case None        => fail
+      }
+    }
+    it("will read -") {
+      val expected = JsonInt(-12345)
+      jsonValue.run("-12345") match {
+        case Some(value) => value._2 shouldBe expected
+        case None        => fail
+      }
+    }
     it("will read in a leading decimal") {
+      pending
       val expected = JsonDouble(0.56789)
-      jsonNumber.run(".56789") shouldBe expected
+      jsonValue.run(".56789") shouldBe expected
     }
 
     it("will read in a trailing decimal") {
       pending
       val expected = JsonDouble(56789)
-      jsonNumber.run("56789.") shouldBe expected
+      jsonValue.run("56789.") shouldBe expected
     }
 
 //    it("will read in a string") {
