@@ -58,82 +58,80 @@ class JsonParserSpec extends AnyFunSpec with Matchers {
       }
     }
     it("will read in a leading decimal") {
-      pending
       val expected = JsonDouble(0.56789)
       jsonValue.run(".56789") shouldBe expected
     }
 
     it("will read in a trailing decimal") {
-      pending
       val expected = JsonDouble(56789)
       jsonValue.run("56789.") shouldBe expected
     }
 
-//    it("will read in a string") {
-//      val expected = JsonString("true")
-//      jsonString.run("\"true\"") shouldBe expected
-//    }
-//
-//    it("will do the whole shebang of side reqs") {
-//      val expected = JsonObject(
-//        mutable.LinkedHashMap(
-//          "alphanumeric_field_needs_quotes" -> JsonBool(false),
-//          "_leading_underscores_ok" -> JsonBool(true),
-//          "trailing_underscores_ok_" -> JsonBool(true),
-//          "carriage_return_acts_like_comma" -> JsonBool(true),
-//          "vanilla JSON keys also supported" -> JsonBool(true),
-//          "a list with null element in at index 1" -> JsonArray(
-//            List(
-//              JsonInt(0),
-//              JsonNull,
-//              JsonInt(2),
-//              JsonInt(3),
-//              JsonInt(4),
-//              JsonInt(5)
-//            )
-//          ),
-//          "a list with null element in at index 0" -> JsonArray(
-//            List(
-//              JsonNull,
-//              JsonInt(1),
-//              JsonInt(2),
-//              JsonInt(3),
-//              JsonInt(4),
-//              JsonInt(5)
-//            )
-//          ),
-//          "a list with null final element" -> JsonArray(
-//            List(
-//              JsonInt(0),
-//              JsonInt(1),
-//              JsonInt(2),
-//              JsonInt(3),
-//              JsonInt(4),
-//              JsonNull
-//            )
-//          ),
-//          "empty list is interpreted as the empty list, not [null]" -> JsonArray(
-//            List()
-//          )
-//        )
-//      )
-//      jsonObject.run("""{
-//                         |  alphanumeric_field_needs_quotes: false,
-//                         |  _leading_undderscores_ok: true,
-//                         |  trailing_underscores_ok_: true,
-//                         |  carriage_return_acts_like_comma: true
-//                         |  "vanilla JSON keys also supported": true
-//                         |  "a list with null element in at index 1": [0,,2,3,4,5]
-//                         |  "a list with null element in at index 0": [,1,2,3,4,5]
-//                         |  "a list with null final element": [0,1,2,3,4,]
-//                         |  "empty list is interpreted as the empty list, not [null]": []
-//                         |  // You can also add comments
-//                         |  /* Multiline
-//                         |     comments
-//                         |     /* can be nested */
-//                         |  */
-//                         |}""".stripMargin) shouldBe expected
-//
-//    }
+    it("will read in a string") {
+      val expected = JsonString("true")
+      jsonString.run("\"true\"") shouldBe expected
+    }
+
+    it("will do the whole shebang of side reqs") {
+      val expected = JsonObject(
+        Map(
+          "alphanumeric_field_needs_quotes" -> JsonBool(false),
+          "_leading_underscores_ok" -> JsonBool(true),
+          "trailing_underscores_ok_" -> JsonBool(true),
+          "carriage_return_acts_like_comma" -> JsonBool(true),
+          "vanilla JSON keys also supported" -> JsonBool(true),
+          "a list with null element in at index 1" -> JsonArray(
+            List(
+              JsonInt(0),
+              JsonNull,
+              JsonInt(2),
+              JsonInt(3),
+              JsonInt(4),
+              JsonInt(5)
+            )
+          ),
+          "a list with null element in at index 0" -> JsonArray(
+            List(
+              JsonNull,
+              JsonInt(1),
+              JsonInt(2),
+              JsonInt(3),
+              JsonInt(4),
+              JsonInt(5)
+            )
+          ),
+          "a list with null final element" -> JsonArray(
+            List(
+              JsonInt(0),
+              JsonInt(1),
+              JsonInt(2),
+              JsonInt(3),
+              JsonInt(4),
+              JsonNull
+            )
+          ),
+          "empty list is interpreted as the empty list, not [null]" -> JsonArray(
+            List()
+          )
+        )
+      )
+      jsonObject.run("""{
+                         |  alphanumeric_field_needs_quotes: false,
+                         |  _leading_undderscores_ok: true,
+                         |  trailing_underscores_ok_: true,
+                         |  carriage_return_acts_like_comma: true
+                         |  "vanilla JSON keys also supported": true
+                         |  "a list with null element in at index 1": [0,,2,3,4,5]
+                         |  "a list with null element in at index 0": [,1,2,3,4,5]
+                         |  "a list with null final element": [0,1,2,3,4,]
+                         |  "empty list is interpreted as the empty list, not [null]": []
+                         |  // You can also add comments
+                         |  /* Multiline
+                         |     comments
+                         |     /* can be nested */
+                         |  */
+                         |}""".stripMargin) shouldBe expected
+
+    }
   }
 }

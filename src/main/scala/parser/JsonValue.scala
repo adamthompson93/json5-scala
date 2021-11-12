@@ -1,7 +1,5 @@
 package parser
 
-import scala.collection.mutable
-
 sealed trait JsonValue
 
 /** val: null */
@@ -32,5 +30,4 @@ case class JsonHex(num: String) extends JsonNumber
   */
 case class JsonArray(arr: List[JsonValue]) extends JsonValue
 
-case class JsonObject(map: mutable.LinkedHashMap[String, JsonValue])
-    extends JsonValue
+case class JsonObject(map: Map[String, JsonValue]) extends JsonValue
