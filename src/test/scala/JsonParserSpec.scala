@@ -6,8 +6,8 @@ import parser._
 class JsonParserSpec extends AnyFunSpec with Matchers {
   describe("JsonParser") {
     it("will read in a null") {
-      val expected = JsonObject(Map("nothing" -> JsonNull))
-      jsonValue.run("{nothing: null}") match {
+      val expected = JsonObject(Map("not_hing" -> JsonNull))
+      jsonValue.run("{not_hing: null}") match {
         case Some(value) => value._2 shouldBe expected
         case None        => fail
       }
@@ -72,6 +72,11 @@ class JsonParserSpec extends AnyFunSpec with Matchers {
       jsonString.run("\"true\"") shouldBe expected
     }
 
+    it("will handle comments") {
+      val expected = JsonObject
+      jsonString.run("//a comment")
+    }
+
     it("will do the whole shebang of side reqs") {
       val expected = JsonObject(
         Map(
@@ -115,7 +120,7 @@ class JsonParserSpec extends AnyFunSpec with Matchers {
           )
         )
       )
-      jsonObject.run("""{
+      jsonValue.run("""{
                          |  alphanumeric_field_needs_quotes: false,
                          |  _leading_undderscores_ok: true,
                          |  trailing_underscores_ok_: true,
