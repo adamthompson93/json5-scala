@@ -127,7 +127,8 @@ object JsonParser {
 
   val wildcardChar: Parser[Char] = sat(c => (c != '"') && (c != '\\'))
   val stringLiteral: Parser[String] =
-    char('"') *> span(wildcardChar <+> escapeChar).map(_.mkString) <* char('"')
+    (char('"') *> span(wildcardChar <+> escapeChar) <* char('"'))
+      .map(_.mkString)
   val jsonString: Parser[JsonValue] = stringLiteral.map(s => JsonString(s))
 
   //Comments
@@ -153,8 +154,9 @@ object JsonParser {
     (element, span1(separator *> element) <+> pure(List.empty[B])).mapN(
       (x, y) => x +: y
     )
+
   val commaOrReturn: Parser[Char] =
-    space *> char(',') <+> char('\n') <* space
+    space *> char(',') <+> newLine <* space
 
   val arrayLiteral: Parser[JsonValue] =
     (char('[') *> space *> sepBy(
@@ -167,7 +169,9 @@ object JsonParser {
   //JsonObject
   val keyNoQuotes: Parser[String] =
     span(sat(c => c.isLetterOrDigit || c == '_')).map(_.mkString)
-  val key: Parser[String] = keyNoQuotes <+> stringLiteral
+
+  //TODO: The string literal doesn't work for some reason?
+  val key: Parser[String] = stringLiteral <+> keyNoQuotes
   val pair: Parser[(String, JsonValue)] =
     (key <* space <* char(':') <* space, jsonValue).mapN((key, value) =>
       key -> value
@@ -177,5 +181,5 @@ object JsonParser {
       .map { pairs => JsonObject(pairs.toMap) }
 
   //JsonValue
-  jsonValue = jsonValue <+> jsonArray <+> jsonObject
+  jsonValue = jsonObject <+> jsonValue <+> jsonArray
 }
