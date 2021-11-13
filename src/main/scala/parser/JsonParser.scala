@@ -136,7 +136,6 @@ object JsonParser {
   val comment: Parser[Unit] = (string("//") *> span(
     sat(c => c != '\r' || c != '\n' || c != '\f')
   ) *> newLine).map(_ => ())
-  //TODO: Multiline comment nesting
   val multiLineComment: Parser[Unit] =
     (string("/*") *> span(notString("*/")) <* string("*/")).map(_ => ())
 
@@ -170,7 +169,6 @@ object JsonParser {
   val keyNoQuotes: Parser[String] =
     span(sat(c => c.isLetterOrDigit || c == '_')).map(_.mkString)
 
-  //TODO: The string literal doesn't work for some reason?
   val key: Parser[String] = stringLiteral <+> keyNoQuotes
   val pair: Parser[(String, JsonValue)] =
     (key <* space <* char(':') <* space, jsonValue).mapN((key, value) =>
