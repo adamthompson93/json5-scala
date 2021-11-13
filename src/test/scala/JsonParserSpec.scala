@@ -216,7 +216,9 @@ class JsonParserSpec extends AnyFunSpec with Matchers {
           )
         )
       )
-
+      jsonValue.run(
+        "{\n  alphanumeric_field_needs_quotes: false,\n  _leading_undderscores_ok: true,\n  trailing_underscores_ok_: true,\n  carriage_return_acts_like_comma: true\n  \"vanilla JSON keys also supported\": true\n  \"a list with null element in at index 1\": [0,,2,3,4,5]\n  \"a list with null element in at index 0\": [,1,2,3,4,5]\n  \"a list with null final element\": [0,1,2,3,4,]\n  \"empty list is interpreted as the empty list, not [null]\": []\n  // You can also add comments\n  /* Multiline \n     comments\n     /* can be nested */\n  */\n}"
+      )
     }
   }
 }

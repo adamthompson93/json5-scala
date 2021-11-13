@@ -141,7 +141,6 @@ object JsonParser {
 
   val comments: Parser[Unit] = comment <+> multiLineComment
 
-  //JsonValue
   var jsonValue: Parser[JsonValue] =
     jsonNull <+> jsonBool <+> jsonNumber <+> jsonString
 
@@ -163,7 +162,11 @@ object JsonParser {
       jsonValue <+> span(char(' ')).map(_ => JsonNull)
     ) <* space <* char(']'))
       .map(l => JsonArray(l))
-  val jsonArray: Parser[JsonValue] = emptyList <+> arrayLiteral
+
+  val jsonArray: Parser[JsonValue] =
+    emptyList <+> arrayLiteral
+
+  jsonValue = jsonValue <+> jsonArray
 
   //JsonObject
   val keyNoQuotes: Parser[String] =
@@ -179,5 +182,5 @@ object JsonParser {
       .map { pairs => JsonObject(pairs.toMap) }
 
   //JsonValue
-  jsonValue = jsonObject <+> jsonValue <+> jsonArray
+  jsonValue = jsonValue <+> jsonObject
 }
