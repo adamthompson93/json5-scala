@@ -16,10 +16,6 @@ case class JsonBool(bool: Boolean) extends JsonValue
   */
 sealed trait JsonNumber extends JsonValue
 
-case class JsonInt(num: Int) extends JsonNumber
-
-case class JsonFloat(num: Float) extends JsonNumber
-
 case class JsonDouble(num: Double) extends JsonNumber
 
 case class JsonHex(num: String) extends JsonNumber

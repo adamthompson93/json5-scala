@@ -31,7 +31,7 @@ class JsonParserSpec extends AnyFunSpec with Matchers {
 
     //JsonNumber
     it("will read in an int") {
-      val expected = JsonInt(15)
+      val expected = JsonDouble(15)
       jsonValue.run("15") match {
         case Some(value) => value._2 shouldBe expected
         case None        => fail
@@ -44,14 +44,14 @@ class JsonParserSpec extends AnyFunSpec with Matchers {
       }
     }
     it("will get the numbers") {
-      val expected = JsonInt(12345)
+      val expected = JsonDouble(12345)
       jsonValue.run("12345test") match {
         case Some(value) => value._2 shouldBe expected
         case None        => fail
       }
     }
     it("will read -") {
-      val expected = JsonInt(-12345)
+      val expected = JsonDouble(-12345)
       jsonValue.run("-12345") match {
         case Some(value) => value._2 shouldBe expected
         case None        => fail
@@ -59,22 +59,116 @@ class JsonParserSpec extends AnyFunSpec with Matchers {
     }
     it("will read in a leading decimal") {
       val expected = JsonDouble(0.56789)
-      jsonValue.run(".56789") shouldBe expected
+      jsonValue.run(".56789") match {
+        case Some(value) => value._2 shouldBe expected
+        case None        => fail
+      }
     }
 
     it("will read in a trailing decimal") {
       val expected = JsonDouble(56789)
-      jsonValue.run("56789.") shouldBe expected
+      jsonValue.run("56789.") match {
+        case Some(value) => value._2 shouldBe expected
+        case None        => fail
+      }
     }
 
     it("will read in a string") {
       val expected = JsonString("true")
-      jsonString.run("\"true\"") shouldBe expected
+      jsonValue.run("\"true\"") match {
+        case Some(value) => value._2 shouldBe expected
+        case None        => fail
+      }
     }
 
+    it("will read an array") {
+      val expected = JsonArray(
+        List(
+          JsonDouble(0),
+          JsonDouble(1),
+          JsonDouble(2),
+          JsonDouble(3),
+          JsonDouble(4),
+          JsonDouble(5)
+        )
+      )
+      jsonValue.run("""[0,1,2,3,4,5]""") match {
+        case Some(value) => value._2 shouldBe expected
+        case None        => fail
+      }
+    }
+    it("will give an empty list") {
+      val expected = JsonArray(List.empty[JsonValue])
+      jsonValue.run("[]") match {
+        case Some(value) => value._2 shouldBe expected
+        case None        => fail
+      }
+    }
+
+    it("will read an array with a null element") {
+      val expected = JsonArray(
+        List(
+          JsonNull,
+          JsonDouble(0),
+          JsonNull,
+          JsonDouble(2),
+          JsonDouble(3),
+          JsonDouble(4),
+          JsonDouble(5),
+          JsonNull
+        )
+      )
+      jsonValue.run("""[ ,0, ,2,3,4,5, ]""") match {
+        case Some(value) => value._2 shouldBe expected
+        case None        => fail
+      }
+    }
+
+    it("will treat a carriage return as a comma for objects") {
+      val expected = JsonObject(
+        Map(
+          "carriage_return_acts_like_comma" -> JsonBool(true),
+          "vanilla JSON keys also supported" -> JsonBool(true)
+        )
+      )
+      jsonValue.run(
+        "{carriage_return_acts_like_comma: true\r \"vanilla JSON keys also supported\": true}"
+      ) shouldBe expected
+    }
     it("will handle comments") {
-      val expected = JsonObject
-      jsonString.run("//a comment")
+      jsonValue.run("//a comment") match {
+        case Some(_) => fail("There should be nothing here")
+        case None    => succeed
+      }
+    }
+    it("will handle a multiline comment") {
+      jsonValue.run(
+        "/*a comment \n that is \"dsfds\" on multiple lines */"
+      ) match {
+        case Some(_) => fail("There should be nothing here")
+        case None    => succeed
+      }
+    }
+    it("will handle nested multiline comments") {
+      val expected =
+        JsonObject(
+          Map(
+            "no_thing" -> JsonNull,
+            "str" -> JsonString("a string")
+          )
+        )
+      jsonValue.run(
+        """{
+          |   no_thing: null,
+          |   /*a comment
+          |  /* excuse me */ that "sadrtas" is on multiple lines */
+          |  str: "a string"
+          |  }
+          |""".stripMargin
+      ) match {
+        case Some(value) => value shouldBe expected
+        case None        => succeed
+      }
     }
 
     it("will do the whole shebang of side reqs") {
@@ -87,31 +181,31 @@ class JsonParserSpec extends AnyFunSpec with Matchers {
           "vanilla JSON keys also supported" -> JsonBool(true),
           "a list with null element in at index 1" -> JsonArray(
             List(
-              JsonInt(0),
+              JsonDouble(0),
               JsonNull,
-              JsonInt(2),
-              JsonInt(3),
-              JsonInt(4),
-              JsonInt(5)
+              JsonDouble(2),
+              JsonDouble(3),
+              JsonDouble(4),
+              JsonDouble(5)
             )
           ),
           "a list with null element in at index 0" -> JsonArray(
             List(
               JsonNull,
-              JsonInt(1),
-              JsonInt(2),
-              JsonInt(3),
-              JsonInt(4),
-              JsonInt(5)
+              JsonDouble(1),
+              JsonDouble(2),
+              JsonDouble(3),
+              JsonDouble(4),
+              JsonDouble(5)
             )
           ),
           "a list with null final element" -> JsonArray(
             List(
-              JsonInt(0),
-              JsonInt(1),
-              JsonInt(2),
-              JsonInt(3),
-              JsonInt(4),
+              JsonDouble(0),
+              JsonDouble(1),
+              JsonDouble(2),
+              JsonDouble(3),
+              JsonDouble(4),
               JsonNull
             )
           ),

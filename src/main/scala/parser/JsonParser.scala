@@ -64,15 +64,11 @@ object JsonParser {
   val jsonBool: Parser[JsonValue] = jsonTrue <+> jsonFalse
 
   //JsonNumber
-  //TODO: negative numbers
-  val jsonInt: Parser[JsonValue] =
-    span1(digit).map(x => JsonInt(x.mkString.toInt))
-
   //Not sure if I should keep the string or convert to int
   val jsonHexInt: Parser[JsonValue] = string("0x") *> hex
     .replicateA(2)
     .map(_.mkString)
-    .map(s => JsonInt(Integer.parseInt(s, 16)))
+    .map(s => JsonDouble(Integer.parseInt(s, 16)))
   //Keeps the string
   val jsonHexString: Parser[JsonValue] = string("0x") *> hex
     .replicateA(2)
@@ -83,7 +79,7 @@ object JsonParser {
   val e: Parser[Char] = char('e') <+> char('E')
   val digits: Parser[Int] = span1(digit).map(_.mkString.toInt)
 
-  //Figure out how to get all of this stuff and then hand it to a function that will construct a double.
+  //TODO: Figure out how to append a 0 when there is no leading 0 before a decimal
   val doubleLiteral: Parser[Double] = (
     minus <+> pure(1),
     digits,
@@ -104,7 +100,7 @@ object JsonParser {
 
   val jsonDouble: Parser[JsonValue] = doubleLiteral.map(d => JsonDouble(d))
 
-  val jsonNumber: Parser[JsonValue] = jsonDouble <+> jsonInt <+> jsonHexInt
+  val jsonNumber: Parser[JsonValue] = jsonDouble <+> jsonHexInt
 
   //JsonString
   val quotation: Parser[Char] = string("\\\"").map(_ => '"')
@@ -132,36 +128,39 @@ object JsonParser {
   val wildcardChar: Parser[Char] = sat(c => (c != '"') && (c != '\\'))
   val stringLiteral: Parser[String] =
     char('"') *> span(wildcardChar <+> escapeChar).map(_.mkString) <* char('"')
-  val jsonString: Parser[JsonValue] = stringLiteral.map(JsonString)
+  val jsonString: Parser[JsonValue] = stringLiteral.map(s => JsonString(s))
 
   //Comments
+  val newLine: Parser[Char] = char('\f') <+> char('\r') <+> char('\n')
   val comment: Parser[Unit] = (string("//") *> span(
     sat(c => c != '\r' || c != '\n' || c != '\f')
-  ) *> carriageReturn).map(_ => ())
+  ) *> newLine).map(_ => ())
+  //TODO: Multiline comment nesting
   val multiLineComment: Parser[Unit] =
     (string("/*") *> span(notString("*/")) <* string("*/")).map(_ => ())
 
   val comments: Parser[Unit] = comment <+> multiLineComment
 
   //JsonValue
-  var jsonValue: Parser[JsonValue] = comments *>
+  var jsonValue: Parser[JsonValue] =
     jsonNull <+> jsonBool <+> jsonNumber <+> jsonString
 
+  //TODO: The jsonValue function inside of jsonArray and jsonObject don't contain themselves
   //JsonArray
   val emptyList: Parser[JsonValue] =
-    string("[,]").map(_ => JsonArray(List.empty[JsonValue]))
+    string("[]").map(_ => JsonArray(List.empty[JsonValue]))
   def sepBy[A, B](separator: Parser[A], element: Parser[B]): Parser[List[B]] =
     (element, span1(separator *> element) <+> pure(List.empty[B])).mapN(
       (x, y) => x +: y
     )
   val commaOrReturn: Parser[Char] =
-    space *> carriageReturn <+> char(',') <* space
+    space *> char(',') <+> char('\n') <* space
 
-  //TODO: Whitespace between elements should read as a null element [ ,4,5] => [JsonNull, 4, 5]
   val arrayLiteral: Parser[JsonValue] =
-    (char('[') *> space *> sepBy(commaOrReturn, jsonValue) <* space <* char(
-      ']'
-    ))
+    (char('[') *> space *> sepBy(
+      commaOrReturn,
+      jsonValue <+> span(char(' ')).map(_ => JsonNull)
+    ) <* space <* char(']'))
       .map(l => JsonArray(l))
   val jsonArray: Parser[JsonValue] = emptyList <+> arrayLiteral
 
